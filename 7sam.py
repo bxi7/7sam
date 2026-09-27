@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""7sam: a small cross-platform LAN discovery and TCP port scanner.
-
-Use only on networks and devices you own or are authorized to assess.
-Uses the Python standard library; no third-party packages are required.
-"""
 from __future__ import annotations
 
 import argparse
