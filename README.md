@@ -1,67 +1,90 @@
-# 7sam — ماسح الشبكة المحلية
+# 7sam — Local Network Scanner
 
-واجهة عربية مبسطة لفحص شبكة IPv4 محلية. يعرض عنوان IP للجهاز والشبكة، الأجهزة التي تستجيب، أسماء الأجهزة المتاحة، عناوين MAC التي يستطيع النظام قراءتها، والمنافذ المفتوحة ضمن قائمة الفحص. يعمل على Windows وLinux باستخدام Python ومكتبته القياسية فقط.
+7sam is a beginner-friendly IPv4 network scanner for Windows and Linux. It shows the local IP address, network range, discovered devices, available hostnames and MAC addresses, and open TCP ports. The web interface starts in English and includes an English/Arabic language toggle.
 
-## المتطلبات
+## Requirements
 
-- Python 3.9 أو أحدث.
-- اتصال بالشبكة المحلية التي تملكها أو لديك إذن بفحصها.
+- Python 3.9 or newer
+- A local network you own or are authorized to scan
 
-لا تحتاج إلى تثبيت حزم Python إضافية.
+7sam uses only Python's standard library; no extra packages are required.
 
-## تشغيل الواجهة
+## Get the project on Linux
 
-ضع `app.py` و`7sam.html` في المجلد نفسه، ثم افتح الطرفية في ذلك المجلد:
+Clone it once:
 
-**Windows (PowerShell أو CMD):**
-
-```powershell
-py app.py
+```bash
+git clone https://github.com/bxi7/7sam.git
+cd 7sam
 ```
 
-إذا لم يتوفر أمر `py`:
+Update an existing checkout to the latest version:
 
-```powershell
-python app.py
+```bash
+cd ~/7sam
+git pull origin main
 ```
+
+After updating, stop the running copy with `Ctrl+C` and start it again with the command below.
+
+## Start the web interface
+
+Keep `7sam.py` and `7sam.html` in the same directory.
 
 **Linux:**
 
 ```bash
-python3 app.py
+python3 7sam.py
 ```
 
-افتح العنوان الذي يظهر في الطرفية، عادةً `http://127.0.0.1:8765`، ثم اختر **ابدأ الفحص**. اكتب `common` للمنافذ الشائعة، أو قائمة مفصولة بفواصل مثل `22,80,443`. تظهر النتائج الحية ويمكن تصديرها إلى CSV.
+**Windows (PowerShell or Command Prompt):**
 
-## التشغيل من الطرفية فقط
+```powershell
+py 7sam.py
+```
 
-اكتشاف الشبكة تلقائيًا وفحص المنافذ الشائعة:
+If `py` is not available, use `python 7sam.py`.
+
+Open the URL printed in the terminal, usually `http://127.0.0.1:8765`, then click **Start scan**. Enter `common` for the common port list or a comma-separated list such as `22,80,443`. Export results as CSV from the table.
+
+## Set the interface language
+
+English is the default. Choose a language when starting the web server:
 
 ```bash
-python3 app.py --scan
+python3 7sam.py --language en
+python3 7sam.py --language ar
 ```
 
-على Windows استخدم `py app.py --scan` أو `python app.py --scan`.
+On Windows, replace `python3` with `py` (or `python`). You can also switch English/Arabic with the language button in the interface.
 
-تحديد شبكة ومنافذ بعينها:
+## Scan from the terminal
+
+Automatically detect the local network and scan common ports:
 
 ```bash
-python3 app.py --scan --network 192.168.1.0/24 --ports 22,80,443
+python3 7sam.py --scan
 ```
 
-لفحص كل منافذ TCP من 1 إلى 65535 على الأجهزة المكتشفة:
+Specify a network and ports:
 
 ```bash
-python3 app.py --scan --network 192.168.1.0/24 --ports all
+python3 7sam.py --scan --network 192.168.1.0/24 --ports 22,80,443
 ```
 
-فحص جميع المنافذ يستغرق وقتًا أطول بكثير. يدعم البرنامج نطاقات حتى 4096 عنوان IPv4 لكل عملية فحص؛ استخدم نطاقًا أضيق إذا كانت شبكتك أكبر.
+Scan every TCP port from 1 to 65535 on discovered devices:
 
-## ملاحظات عن النتائج
+```bash
+python3 7sam.py --scan --network 192.168.1.0/24 --ports all
+```
 
-- اكتشاف الأجهزة يعتمد على استجابة ping وجدول الجيران/ARP. قد يمنع جدار الحماية اكتشاف بعض الأجهزة.
-- قد لا يتمكن النظام من معرفة MAC للأجهزة خارج الشبكة الفرعية المحلية أو إذا لم يظهر العنوان في جدول ARP/الجيران.
-- أسماء الأجهزة تعتمد على DNS العكسي وقد تظهر «غير معروف» عند عدم توفر اسم.
-- المنافذ المعروضة هي منافذ TCP التي تقبل الاتصال خلال مهلة الفحص. إظهارها يعتمد على المنفذ والشبكة والجدار الناري.
-- الواجهة تستضيف الخادم افتراضيًا على `127.0.0.1`، لذلك لا يكون متاحًا للأجهزة الأخرى.
-- افحص فقط الشبكات والأجهزة التي تملكها أو لديك إذن صريح بفحصها.
+On Windows, use `py 7sam.py --scan` or `python 7sam.py --scan`. Full port scans take considerably longer. A scan is limited to 4096 IPv4 addresses; choose a smaller CIDR range if needed.
+
+## Notes
+
+- Discovery uses ping and the operating system's ARP/neighbor table. Firewalls may prevent some devices from appearing.
+- MAC addresses may be unavailable outside the local subnet or when the operating system has no neighbor entry.
+- Hostnames depend on reverse DNS and may be shown as `Unknown`.
+- Open ports are TCP ports that accepted a connection during the scan. Results depend on firewalls and network settings.
+- The web server binds to `127.0.0.1` by default and is available only on the computer running 7sam.
+- Only scan networks and devices you own or have explicit permission to assess.
